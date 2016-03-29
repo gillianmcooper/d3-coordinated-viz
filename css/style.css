@@ -1,0 +1,27 @@
+/* 575 boilerplate style.css */
+.map {
+	border: medium solid #999;
+}
+
+.selectCountries{
+	fill: #BF7FBF;
+}
+
+.gratBackground {
+	fill: #D9D9D9;
+}
+
+.gratLines {
+	fill: none;
+	stroke: white;
+	stroke-width: 1px;
+}
+.land {
+  fill: #222;
+}
+
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
