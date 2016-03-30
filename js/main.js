@@ -28,7 +28,7 @@ function setMap(){
 //use queue.js to parallelize asynchronous data loading
   var q = d3_queue.queue();
     q
-    .defer(d3.csv, "data/work_per.csv") 
+    .defer(d3.csv, "data/csvData.csv") 
     .defer(d3.json, "data/countries.topojson") 
     .await(callback);
 //creating the callback function to create the map
