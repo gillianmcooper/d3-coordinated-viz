@@ -20,7 +20,7 @@ var width = window.innerWidth * 0.7,
     .attr("height", height);
 //defining the map projection and scale
   var projection = d3.geo.naturalEarth()
-      .scale(600)
+      .scale(400)
       .translate([width / 2, height / 2])
       .precision(.1);
 
@@ -53,6 +53,7 @@ var width = window.innerWidth * 0.7,
     setEnumerationUnits(worldcountries, map, path, colorScale);
 
     setChart(csvData, colorScale);
+
   };
 
 };
@@ -143,8 +144,16 @@ function joinData (worldcountries, csvData){
 
           if (geojsonKey==csvKey){
             attrArray.forEach(function(attr){
-              var val = parseFloat(csvRegion[attr]);
-              geojsonProps[attr] = val;
+              if (csvRegion[attr]==".."){
+                geojsonProps[attr] = "No Data";
+                // console.log(geojsonProps[attr]);
+              }
+
+              else{
+                var val = parseFloat(csvRegion[attr]);
+                geojsonProps[attr] = val;
+                // console.log(csvRegion[attr]);
+              }
             });
           };
         };
@@ -157,6 +166,12 @@ function setChart(csvData, colorScale){
     //chart frame dimensions
     var chartWidth = window.innerWidth * 0.97,
         chartHeight = 700;
+        leftPadding = 25,
+        rightPadding = 2,
+        topBottomPadding = 5,
+        innerWidth = chartWidth - leftPadding - rightPadding,
+        innerHeight = chartHeight - topBottomPadding * 2,
+        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
     //create a second svg element to hold the bar chart
     var chart = d3.select("#chart-div")
@@ -165,15 +180,20 @@ function setChart(csvData, colorScale){
         .attr("height", chartHeight)
         .attr("class", "chart");
 
+
+
     var yScale = d3.scale.linear()
         .range([0, chartHeight])
-        .domain([0, 105]);
+        .domain([0, 40]);
     //set bars for each province
-       var bars = chart.selectAll(".bars")
+    var bars = chart.selectAll(".bars")
         .data(csvData)
         .enter()
         .append("rect")
         .sort(function(a, b){
+          console.log(a[expressed]);
+          console.log(b[expressed]);
+          //input if statements for .. no data spaces
             return a[expressed]-b[expressed]
         })
         .attr("class", function(d){
@@ -192,28 +212,28 @@ function setChart(csvData, colorScale){
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
-//applying numbers to the chart
-     // var numbers = chart.selectAll(".numbers")
-     //    .data(csvData)
-     //    .enter()
-     //    .append("text")
-     //    .sort(function(a, b){
-     //        return a[expressed]-b[expressed]
-     //    })
-     //    .attr("class", function(d){
-     //        return "numbers " + d.adm1_code;
-     //    })
-     //    .attr("text-anchor", "middle")
-     //    .attr("x", function(d, i){
-     //        var fraction = chartWidth / csvData.length;
-     //        return i * fraction + (fraction - 1) / 2;
-     //    })
-     //    .attr("y", function(d){
-     //        return chartHeight - yScale(parseFloat(d[expressed])) + 15;
-     //    })
-     //    .text(function(d){
-     //        return d[expressed];
-     //    });
+// //applying numbers to the chart
+//      var numbers = chart.selectAll(".numbers")
+//         .data(csvData)
+//         .enter()
+//         .append("text")
+//         .sort(function(a, b){
+//             return a[expressed]-b[expressed]
+//         })
+//         .attr("class", function(d){
+//             return "numbers " + d.adm1_code;
+//         })
+//         .attr("text-anchor", "middle")
+//         .attr("x", function(d, i){
+//             var fraction = chartWidth / csvData.length;
+//             return i * fraction + (fraction - 1) / 2;
+//         })
+//         .attr("y", function(d){
+//             return chartHeight - yScale(parseFloat(d[expressed])) + 15;
+//         })
+//         .text(function(d){
+//             return d[expressed];
+//         });
 
 //create a text element for the chart title
     var chartTitle = chart.append("text")
@@ -226,17 +246,17 @@ function setChart(csvData, colorScale){
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left");
-
+console.log(yScale);
     //place axis
     var axis = chart.append("g")
         .attr("class", "axis")
-        // .attr("transform", translate)
+        .attr("transform", translate)
         .call(yAxis);
 
     //create frame for chart border
     var chartFrame = chart.append("rect")
         .attr("class", "chartFrame")
-        .attr("width", "100%")
+        .attr("width", chartWidth)
         .attr("height", chartHeight)
         .attr("transform", translate);
 };
