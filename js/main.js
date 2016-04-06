@@ -13,7 +13,7 @@ var width = window.innerWidth * 0.5,
     height = 460;
 
 //create new svg container for the map
-  var map = d3.select("body")
+  var map = d3.select("#map-div")
     .append("svg")
     .attr("class", "map")
     .attr("width", width)
@@ -129,6 +129,7 @@ function setGraticule(map, path){
 };
 
 //writing a function to join the data from the csv and geojson
+//writing a function to join the data from the csv and geojson
 function joinData (worldcountries, csvData){
 
       for (var i= 0; i<csvData.length; i++){
@@ -154,11 +155,11 @@ function joinData (worldcountries, csvData){
 //function to create coordinated bar chart
 function setChart(csvData, colorScale){
     //chart frame dimensions
-    var chartWidth = window.innerWidth * 0.425,
-        chartHeight = 460;
+    var chartWidth = window.innerWidth * 0.97,
+        chartHeight = 1000;
 
     //create a second svg element to hold the bar chart
-    var chart = d3.select("body")
+    var chart = d3.select("#chart-div")
         .append("svg")
         .attr("width", chartWidth)
         .attr("height", chartHeight)
@@ -192,27 +193,50 @@ function setChart(csvData, colorScale){
             return choropleth(d, colorScale);
         });
 
-     var numbers = chart.selectAll(".numbers")
-        .data(csvData)
-        .enter()
-        .append("text")
-        .sort(function(a, b){
-            return a[expressed]-b[expressed]
-        })
-        .attr("class", function(d){
-            return "numbers " + d.adm1_code;
-        })
-        .attr("text-anchor", "middle")
-        .attr("x", function(d, i){
-            var fraction = chartWidth / csvData.length;
-            return i * fraction + (fraction - 1) / 2;
-        })
-        .attr("y", function(d){
-            return chartHeight - yScale(parseFloat(d[expressed])) + 15;
-        })
-        .text(function(d){
-            return d[expressed];
-        });
-};
+     // var numbers = chart.selectAll(".numbers")
+     //    .data(csvData)
+     //    .enter()
+     //    .append("text")
+     //    .sort(function(a, b){
+     //        return a[expressed]-b[expressed]
+     //    })
+     //    .attr("class", function(d){
+     //        return "numbers " + d.adm1_code;
+     //    })
+     //    .attr("text-anchor", "middle")
+     //    .attr("x", function(d, i){
+     //        var fraction = chartWidth / csvData.length;
+     //        return i * fraction + (fraction - 1) / 2;
+     //    })
+     //    .attr("y", function(d){
+     //        return chartHeight - yScale(parseFloat(d[expressed])) + 15;
+     //    })
+     //    .text(function(d){
+     //        return d[expressed];
+     //    });
 
- 
+//create a text element for the chart title
+    var chartTitle = chart.append("text")
+        .attr("x", 40)
+        .attr("y", 40)
+        .attr("class", "chartTitle")
+        .text("Number of Employers " + expressed[3] + " in each Country");
+
+    //create vertical axis generator
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left");
+
+    //place axis
+    var axis = chart.append("g")
+        .attr("class", "axis")
+        // .attr("transform", translate)
+        .call(yAxis);
+
+    //create frame for chart border
+    var chartFrame = chart.append("rect")
+        .attr("class", "chartFrame")
+        .attr("width", "100%")
+        .attr("height", "1000px")
+        .attr("transform", translate);
+};
