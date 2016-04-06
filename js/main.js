@@ -156,7 +156,7 @@ function joinData (worldcountries, csvData){
 function setChart(csvData, colorScale){
     //chart frame dimensions
     var chartWidth = window.innerWidth * 0.97,
-        chartHeight = 1000;
+        chartHeight = 700;
 
     //create a second svg element to hold the bar chart
     var chart = d3.select("#chart-div")
@@ -192,7 +192,7 @@ function setChart(csvData, colorScale){
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
-
+//applying numbers to the chart
      // var numbers = chart.selectAll(".numbers")
      //    .data(csvData)
      //    .enter()
@@ -218,7 +218,7 @@ function setChart(csvData, colorScale){
 //create a text element for the chart title
     var chartTitle = chart.append("text")
         .attr("x", 40)
-        .attr("y", 40)
+        .attr("y", 70)
         .attr("class", "chartTitle")
         .text("Number of Employers " + expressed[3] + " in each Country");
 
@@ -237,6 +237,6 @@ function setChart(csvData, colorScale){
     var chartFrame = chart.append("rect")
         .attr("class", "chartFrame")
         .attr("width", "100%")
-        .attr("height", "1000px")
+        .attr("height", chartHeight)
         .attr("transform", translate);
 };

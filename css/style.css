@@ -59,16 +59,16 @@
 /*    float: right;*/
     margin: 20px 20px 0 0;
     width: 99%;
-/*    padding-left: 30px;*/
-
+    height: 700px;
+/*    padding-left: 30px;*/'
 
 }
+
 .numbers {
     fill: white;
     font-family: sans-serif;
 /*    font-size: 10;*/
 }
-
 
 .chartTitle {
     font-family: Ariel;
@@ -96,3 +96,9 @@
     font-size: 0.8em;
     fill: #999;
 }
+#title-div{
+	font-family: sans-serif;
+	font-size: 10em;
+}
+
+
