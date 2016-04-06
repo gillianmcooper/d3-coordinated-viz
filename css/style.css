@@ -6,7 +6,8 @@
 .gratBackground {
 	fill: #9DD6D6;
 	width: 100%;
-	height:100px;
+	height:600px;
+
 }
 
 .gratLines {
@@ -31,58 +32,48 @@
 }
 
 .map{
-	width: 90%;
-	height: 1000px;
+	padding-top: 60px;
+	padding-bottom: 50px;
+	/*padding-right: 70px;*/
+	width: 100%;
+	float:left;
+/*	height: 1000px;*/
 }
 #map-div {
     border: medium solid #999;
     margin: 10px 0 0 20px;
-    width: 100%;
-    height: 1000px;
+    width: 70%;
+    height: 1900px;
+    float: left;
+}
+#info-div{
+	width:27%;
+	height: 2000px;
+	float: right;
+	font-size: 50pt;
 }
 
-/*.chart {
+.chart {
     background-color: rgba(128,128,128,.2);
     border: medium solid #999;
-    float: right;
-    margin: 10px 20px 0 0;
-    width: 100%;
+/*    float: right;*/
+    margin: 20px 20px 0 0;
+    width: 99%;
+/*    padding-left: 30px;*/
 
-}*/
+
+}
 .numbers {
     fill: white;
     font-family: sans-serif;
 /*    font-size: 10;*/
 }
 
-/*.chart{
-	width: 90%;
-	height: 1000px;
-}*/
-/*.svg{
-	width: 80%;
-	height: 1000px;
-
-}*/
-.bars{
-	width:100%;
-	height:1000px;
-}
-
-.chart {
-    float: right;
-    margin: 7px 20px 0 0;
-
-}
 
 .chartTitle {
-    font-family: sans-serif;
-    font-size: 1.5em;
+    font-family: Ariel;
+    font-size: 6em;
     font-weight: bold;
-}
-
-.chartBackground {
-    fill: rgba(128,128,128,.2);
 }
 
 .chartFrame {

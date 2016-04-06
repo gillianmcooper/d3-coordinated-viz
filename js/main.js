@@ -9,8 +9,8 @@ var expressed = attrArray[0];
 function setMap(){
 
 //map frame dimensions
-var width = window.innerWidth * 0.5,
-    height = 460;
+var width = window.innerWidth * 0.7,
+    height = 1700;
 
 //create new svg container for the map
   var map = d3.select("#map-div")
@@ -20,7 +20,7 @@ var width = window.innerWidth * 0.5,
     .attr("height", height);
 //defining the map projection and scale
   var projection = d3.geo.naturalEarth()
-      .scale(200)
+      .scale(600)
       .translate([width / 2, height / 2])
       .precision(.1);
 
@@ -77,7 +77,7 @@ function makeColorScale(data){
   };
 
   colorScale.domain(domainArray);
-console.log(colorScale.domain());
+
   return colorScale;
 };
 
