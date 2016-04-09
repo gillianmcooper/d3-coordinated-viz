@@ -53,7 +53,8 @@ var width = window.innerWidth * 0.7,
     setEnumerationUnits(worldcountries, map, path, colorScale);
 
     setChart(csvData, colorScale);
-
+    createDropdown();
+    changeAttribute(attribute, csvData);
   };
 
 };
@@ -190,12 +191,19 @@ function setChart(csvData, colorScale){
         .data(csvData)
         .enter()
         .append("rect")
+
+
+//resolving the sort function issues
         .sort(function(a, b){
-          console.log(a[expressed]);
-          console.log(b[expressed]);
+          // console.log(a[expressed]);
+          // console.log(b[expressed]);
           //input if statements for .. no data spaces
-            return a[expressed]-b[expressed]
+            return b[expressed]-a[expressed]
         })
+
+
+
+
         .attr("class", function(d){
             return "bars " + d.adm0_a3;
         })
@@ -259,4 +267,41 @@ console.log(yScale);
         .attr("width", chartWidth)
         .attr("height", chartHeight)
         .attr("transform", translate);
+
+
+};
+
+function createDropdown(){
+    //add select element
+    var dropdown = d3.select("#info-div")
+        .append("select")
+        .attr("class", "dropdown");
+
+    //add initial option
+    var titleOption = dropdown.append("option")
+        .attr("class", "titleOption")
+        .attr("disabled", "true")
+        .text("Select Attribute");
+
+    //add attribute name options
+    var attrOptions = dropdown.selectAll("attrOptions")
+        .data(attrArray)
+        .enter()
+        .append("option")
+        .attr("value", function(d){ return d })
+        .text(function(d){ return d });
+};
+
+function changeAttribute(attribute, csvData){
+    //change the expressed attribute
+     expressed = attribute;
+
+    //recreate the color scale
+    var colorScale = makeColorScale(csvData);
+
+    //recolor enumeration units
+    var regions = d3.selectAll(".selectCountries")
+        .style("fill", function(d){
+            return choropleth(d.properties, colorScale)
+        });
 };
