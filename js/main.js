@@ -1,10 +1,26 @@
 //begin script when window loads
-window.onload = setMap();
 
 
-//creating a global variable for attribute arrary 
+
+//creating a pseudo-global variables
 var attrArray = ["Employers, female (% of employment)", "Employers, male (% of employment)","Employers, total (% of employment)", "GDP growth (annual %)", "Labor force with primary education (% of total)"];
 var expressed = attrArray[0];
+
+    //chart frame dimensions
+ var chartWidth = window.innerWidth * 0.97,
+        chartHeight = 700;
+        leftPadding = 25,
+        rightPadding = 2,
+        topBottomPadding = 5,
+        innerWidth = chartWidth - leftPadding - rightPadding,
+        innerHeight = chartHeight - topBottomPadding * 2,
+        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+
+    var yScale = d3.scale.linear()
+        .range([0, chartHeight])
+        .domain([0, 40]);
+
+window.onload = setMap();
 //set up choropleth map
 function setMap(){
 
@@ -53,8 +69,8 @@ var width = window.innerWidth * 0.7,
     setEnumerationUnits(worldcountries, map, path, colorScale);
 
     setChart(csvData, colorScale);
-    createDropdown();
-    changeAttribute(attribute, csvData);
+    createDropdown(csvData);
+
   };
 
 };
@@ -145,7 +161,7 @@ function joinData (worldcountries, csvData){
 
           if (geojsonKey==csvKey){
             attrArray.forEach(function(attr){
-              if (csvRegion[attr]==".."){
+              if (csvRegion[attr]==" "){
                 geojsonProps[attr] = "No Data";
                 // console.log(geojsonProps[attr]);
               }
@@ -164,15 +180,7 @@ function joinData (worldcountries, csvData){
 
 //function to create coordinated bar chart
 function setChart(csvData, colorScale){
-    //chart frame dimensions
-    var chartWidth = window.innerWidth * 0.97,
-        chartHeight = 700;
-        leftPadding = 25,
-        rightPadding = 2,
-        topBottomPadding = 5,
-        innerWidth = chartWidth - leftPadding - rightPadding,
-        innerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+
 
     //create a second svg element to hold the bar chart
     var chart = d3.select("#chart-div")
@@ -181,29 +189,18 @@ function setChart(csvData, colorScale){
         .attr("height", chartHeight)
         .attr("class", "chart");
 
-
-
-    var yScale = d3.scale.linear()
-        .range([0, chartHeight])
-        .domain([0, 40]);
     //set bars for each province
     var bars = chart.selectAll(".bars")
         .data(csvData)
         .enter()
         .append("rect")
+        
 
 
 //resolving the sort function issues
         .sort(function(a, b){
-          // console.log(a[expressed]);
-          // console.log(b[expressed]);
-          //input if statements for .. no data spaces
             return b[expressed]-a[expressed]
         })
-
-
-
-
         .attr("class", function(d){
             return "bars " + d.adm0_a3;
         })
@@ -271,37 +268,62 @@ console.log(yScale);
 
 };
 
-function createDropdown(){
-    //add select element
-    var dropdown = d3.select("#info-div")
-        .append("select")
-        .attr("class", "dropdown");
+function createDropdown(csvData){
+  //add select element
+  var dropdown = d3.select("body")
+    .append("select")
+    .attr("class", "dropdown")
+    .on("change", function(){
+      console.log(this.value);
+      console.log(csvData);
+      changeAttribute(this.value, csvData)
+    });
 
-    //add initial option
-    var titleOption = dropdown.append("option")
-        .attr("class", "titleOption")
-        .attr("disabled", "true")
-        .text("Select Attribute");
+  //add initial option
+  var titleOption = dropdown.append("option")
+    .attr("class", "titleOption")
+    .attr("disabled", "true")
+    .text("Select Attribute");
 
-    //add attribute name options
-    var attrOptions = dropdown.selectAll("attrOptions")
-        .data(attrArray)
-        .enter()
-        .append("option")
-        .attr("value", function(d){ return d })
-        .text(function(d){ return d });
+  //add attribute name options
+  var attrOptions = dropdown.selectAll("attrOptions")
+    .data(attrArray)
+    .enter()
+    .append("option")
+    .attr("value", function(d){ return d })
+    .text(function(d){ return d });
 };
-
 function changeAttribute(attribute, csvData){
-    //change the expressed attribute
-     expressed = attribute;
+  //change the expressed attribute
+  expressed = attribute;
 
-    //recreate the color scale
-    var colorScale = makeColorScale(csvData);
+  //recreate the color scale
+  var colorScale = makeColorScale(csvData);
 
-    //recolor enumeration units
-    var regions = d3.selectAll(".selectCountries")
+  //recolor enumeration units
+  var regions = d3.selectAll(".selectCountries")
+    .transition()
+    .duration(1000)
+    .style("fill", function(d){
+      return choropleth(d.properties, colorScale)
+    });
+  var bars = d3.selectAll(".bar")
+        //re-sort bars
+        .sort(function(a, b){
+            return b[expressed] - a[expressed];
+        })
+        .attr("x", function(d, i){
+            return i * (chartInnerWidth / csvData.length) + leftPadding;
+        })
+        //resize bars
+        .attr("height", function(d, i){
+            return 463 - yScale(parseFloat(d[expressed]));
+        })
+        .attr("y", function(d, i){
+            return yScale(parseFloat(d[expressed])) + topBottomPadding;
+        })
+        //recolor bars
         .style("fill", function(d){
-            return choropleth(d.properties, colorScale)
+            return choropleth(d, colorScale);
         });
-};
+  };
