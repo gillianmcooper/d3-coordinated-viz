@@ -59,8 +59,8 @@
 /*    float: right;*/
     margin: 90px 0px 0 0;
     width: 90%;
-    height: 700px;
-	padding-left: 30px;*/'
+    height: 1000px;
+	padding-left: 30px;
 
 }
 
@@ -75,6 +75,7 @@
     font-size: 6em;
     font-weight: bold;
 }
+
 
 .chartFrame {
     fill: none;
