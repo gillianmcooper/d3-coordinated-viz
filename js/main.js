@@ -78,11 +78,11 @@ var width = window.innerWidth * 0.7,
 //making the color scheme generator
 function makeColorScale(data){
   var colorClasses = [
-        "#D4B9DA",
-        "#C994C7",
-        "#DF65B0",
-        "#DD1C77",
-        "#980043"
+        "#ffffcc",
+        "#a1dab4",
+        "#41b6c4",
+        "#2c7fb8",
+        "#253494"
         ];
 
   var  colorScale = d3.scale.quantile()
@@ -206,8 +206,6 @@ function setChart(csvData, colorScale){
 
   //this hightlights all the bars 
         .on("mouseover", highlight);
-
-    
 
 // //applying numbers to the chart
 //      var numbers = chart.selectAll(".numbers")
