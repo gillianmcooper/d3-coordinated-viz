@@ -110,12 +110,17 @@ function setEnumerationUnits(worldcountries, map, path, colorScale){
           })
 
           .attr("d",path)
-        .style("fill", function(d){
+          .style("fill", function(d){
             return choropleth(d.properties, colorScale);
+        })
+          .on("mouseover", function(d){
+            highlight(d.properties);
         });
-        };
+};
 
 function choropleth(props, colorScale){
+          // highlight(props);
+
     //make sure attribute value is a number
     var val = parseFloat(props[expressed]);
     //if attribute value exists, assign a color; otherwise assign gray
@@ -146,7 +151,7 @@ function setGraticule(map, path){
       .attr("d", path); 
 };
 
-//writing a function to join the data from the csv and geojson
+
 //writing a function to join the data from the csv and geojson
 function joinData (worldcountries, csvData){
 
@@ -184,8 +189,7 @@ function setChart(csvData, colorScale){
     var chart = d3.select("#chart-div")
         .append("svg")
         .attr("width", chartWidth)
-        .attr("height", chartHeight)
-        .attr("class", "chart");
+        .attr("height", chartHeight);
 
     //set bars for each province
      var bars = chart.selectAll(".bar")
@@ -193,36 +197,17 @@ function setChart(csvData, colorScale){
         .enter()
         .append("rect")
         .sort(function(a, b){
-            return b[expressed]-a[expressed]
+            return a[expressed]-b[expressed]
         })
         .attr("class", function(d){
             return "bar " + d.adm0_a3;
         })
-        .attr("width", innerWidth / csvData.length - 1);
+        .attr("width", innerWidth / csvData.length - 1)
 
+  //this hightlights all the bars 
+        .on("mouseover", highlight);
 
-
-//resolving the sort function issues
-        // .sort(function(a, b){
-        //     return b[expressed]-a[expressed]
-        // })
-        // .attr("class", function(d){
-        //     return "bars " + d.adm0_a3;
-        // })
-        // .attr("width", chartWidth / csvData.length - 1)
-        // .attr("x", function(d, i){
-        //     return i * (chartWidth / csvData.length);
-        // })
-        // .attr("height", function(d){
-        //     return yScale(parseFloat(d[expressed]));
-        // })
-        // .attr("y", function(d){
-        //     return chartHeight - yScale(parseFloat(d[expressed]));
-        // })
-        // .style("fill", function(d){
-        //     return choropleth(d, colorScale);
-        // });
-
+    
 
 // //applying numbers to the chart
 //      var numbers = chart.selectAll(".numbers")
@@ -270,8 +255,6 @@ function setChart(csvData, colorScale){
         .attr("width", chartWidth)
         .attr("height", chartHeight)
         .attr("transform", translate);
-
-
 };
 
 function createDropdown(csvData){
@@ -316,21 +299,13 @@ function changeAttribute(attribute, csvData){
         .sort(function(a, b){
             return b[expressed] - a[expressed];
         })
-        // .attr("x", function(d, i){
-        //     return i * (chartInnerWidth / csvData.length) + leftPadding;
-        // })
-        // //resize bars
-        // .attr("height", function(d, i){
-        //     return 463 - yScale(parseFloat(d[expressed]));
-        // })
-        // .attr("y", function(d, i){
-        //     return yScale(parseFloat(d[expressed])) + topBottomPadding;
-        // })
-        // //recolor bars
-        // .style("fill", function(d){
-        //     return choropleth(d, colorScale);
-        // });
-        updateChart(bars, csvData.length, colorScale);
+        .transition() //add animation
+        .delay(function(d, i){
+            return i * 20
+        })
+        .duration(500);
+
+    updateChart(bars, csvData.length, colorScale);
  
   function updateChart(bars, n, colorScale){
     //position bars
@@ -339,7 +314,7 @@ function changeAttribute(attribute, csvData){
         })
         //size/resize bars
         .attr("height", function(d, i){
-            return 463 - yScale(parseFloat(d[expressed]));
+            return 700 - yScale(parseFloat(d[expressed]));
         })
         .attr("y", function(d, i){
             return yScale(parseFloat(d[expressed])) + topBottomPadding;
@@ -348,5 +323,14 @@ function changeAttribute(attribute, csvData){
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
+
+  };
 };
- };
+function highlight(props){
+    //change stroke
+    var selected = d3.selectAll("." + props.adm0_a3)
+        .style({
+            "stroke": "blue",
+            "stroke-width": "2"
+        });
+};
