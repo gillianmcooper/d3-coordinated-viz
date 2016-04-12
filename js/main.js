@@ -113,9 +113,17 @@ function setEnumerationUnits(worldcountries, map, path, colorScale){
           .style("fill", function(d){
             return choropleth(d.properties, colorScale);
         })
-          .on("mouseover", function(d){
+        .on("mouseover", function(d){
             highlight(d.properties);
-        });
+        })
+        .on("mouseout", function(d){
+            dehighlight(d.properties);
+        })
+        .on("mousemove", moveLabel);
+        var desc = selectCountries.append("desc")
+          .text('{"stroke": "none", "stroke-width": "0px"}');
+
+
 };
 
 function choropleth(props, colorScale){
@@ -184,12 +192,12 @@ function joinData (worldcountries, csvData){
 //function to create coordinated bar chart
 function setChart(csvData, colorScale){
 
-
     //create a second svg element to hold the bar chart
     var chart = d3.select("#chart-div")
         .append("svg")
         .attr("width", chartWidth)
-        .attr("height", chartHeight);
+        .attr("height", chartHeight)
+        .attr("class", "chart");
 
     //set bars for each province
      var bars = chart.selectAll(".bar")
@@ -200,42 +208,27 @@ function setChart(csvData, colorScale){
             return a[expressed]-b[expressed]
         })
         .attr("class", function(d){
-            return "bar " + d.adm0_a3;
+            return "bar " + d.admin;
         })
+
         .attr("width", innerWidth / csvData.length - 1)
 
-  //this hightlights all the bars 
-        .on("mouseover", highlight);
+        .on("mouseover", highlight)
+        .on("mouseout", dehighlight)
+        .on("mousemove", moveLabel);
+  // //this hightlights all the bars 
+  //       .on("mouseover", highlight)
+  //       .on("mouseout", dehighlight);
 
-// //applying numbers to the chart
-//      var numbers = chart.selectAll(".numbers")
-//         .data(csvData)
-//         .enter()
-//         .append("text")
-//         .sort(function(a, b){
-//             return a[expressed]-b[expressed]
-//         })
-//         .attr("class", function(d){
-//             return "numbers " + d.adm1_code;
-//         })
-//         .attr("text-anchor", "middle")
-//         .attr("x", function(d, i){
-//             var fraction = chartWidth / csvData.length;
-//             return i * fraction + (fraction - 1) / 2;
-//         })
-//         .attr("y", function(d){
-//             return chartHeight - yScale(parseFloat(d[expressed])) + 15;
-//         })
-//         .text(function(d){
-//             return d[expressed];
-//         });
+    var desc = bars.append("desc")
+        .text('{"stroke": "none", "stroke-width": "0px"}');
 
 //create a text element for the chart title
     var chartTitle = chart.append("text")
         .attr("x", 40)
         .attr("y", 70)
         .attr("class", "chartTitle")
-        .text("Number of Employers " + expressed[3] + " in each Country");
+        
 
     //create vertical axis generator
     var yAxis = d3.svg.axis()
@@ -294,6 +287,7 @@ function changeAttribute(attribute, csvData){
     });
   var bars = d3.selectAll(".bar")
         //re-sort bars
+
         .sort(function(a, b){
             return b[expressed] - a[expressed];
         })
@@ -321,6 +315,8 @@ function changeAttribute(attribute, csvData){
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
+    var chartTitle = d3.select(".chartTitle")
+       .text("" + expressed + " in each region");
 
   };
 };
@@ -330,5 +326,60 @@ function highlight(props){
         .style({
             "stroke": "blue",
             "stroke-width": "2"
+        });
+
+    setLabel(props);
+};
+
+function setLabel(props){
+    //label content
+    var labelAttribute = "<h1>" + props[expressed] +
+        "</h1><b>" + expressed + "</b>";
+
+    //create info label div
+    var infolabel = d3.select("body")
+        .append("div")
+        .attr({
+            "class": "infolabel",
+            "id": props.adm0_a3 + "_label"
+        })
+        .html(labelAttribute);
+
+    var regionName = infolabel.append("div")
+        .attr("class", "labelname")
+        .html(props.name);
+};
+function dehighlight(props){
+  var selected = d3.selectAll("." + props.adm0_a3)
+    .style({
+      "stroke": function(){
+        return getStyle(this, "stroke")
+      },
+      "stroke-width": function(){
+        return getStyle(this, "stroke-width")
+      }
+    });
+    function getStyle(element, styleName){
+    var styleText = d3.select(element)
+      .select("desc")
+      .text();
+
+    var styleObject = JSON.parse(styleText);
+
+    return styleObject[styleName];
+  };
+
+  d3.select(".infolabel")
+    .remove();
+};
+function moveLabel(){
+    //use coordinates of mousemove event to set label coordinates
+    var x = d3.event.clientX + 10,
+        y = d3.event.clientY - 75;
+
+    d3.select(".infolabel")
+        .style({
+            "left": x + "px",
+            "top": y + "px"
         });
 };
