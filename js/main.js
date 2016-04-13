@@ -19,8 +19,9 @@ var graphWidth = window.innerWidth * 0.97,
 
 //creating the linear scale bar for the graph, domain goes from 0 -100 as the values are percentages
 var yScale = d3.scale.linear()
-    .range([600, 0])
-    .domain([0, 100]);
+    .domain([0, 100])
+    .range([innerHeight, 0]);
+
 
 window.onload = setMap();
 
@@ -196,7 +197,8 @@ function setgraph(csvDataa, colorScale){
         .append("svg")
         .attr("width", graphWidth)
         .attr("height", graphHeight)
-        .attr("class", "graph");
+        .attr("class", "graph")
+
 
 //creating the bars for each region
      var bars = graph.selectAll(".bar")
@@ -212,7 +214,6 @@ function setgraph(csvDataa, colorScale){
         })
 
         .attr("width", innerWidth / csvDataa.length - 1)
-
         .on("mouseover", highlight)
         .on("mouseout", dehighlight)
         .on("mousemove", moveLabel);
@@ -232,6 +233,7 @@ function setgraph(csvDataa, colorScale){
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left");
+
     //place axis
     var axis = graph.append("g")
         .attr("class", "axis")

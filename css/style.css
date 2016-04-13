@@ -3,8 +3,17 @@
 	border: medium solid #999;
 }*/
 
+body{
+  background-color: #d9d9d9;
+}
+#central{
+	width: 100%;
+	align: center;
+	background-color: white;
+}
+
 .gratBackground {
-	fill: #d2f4fc;
+	fill: white;
 	width: 100%;
 	height:600px;
 
@@ -38,41 +47,46 @@
 	float:left;
 }
 #map-div {
-    border: medium solid #999;
-    margin: 10px 0 0 20px;
-    width: 70%;
+/*    border: medium solid #999;*/
+    margin: 30px 0 0 20px;
+    width: 69%;
     height: 1600px;
     float: left;
 }
 #info-div{
-	width:27%;
+	margin: 00px 0 0 40px;
+	width:29%;
 	height: 2000px;
 	float: right;
 	font-size: 4em;
-	font-family: jensen;
+	font-family: DejaVu Sans;
+	color: #4d4d4d;
 }
 
 #graph-div {
-    background-color: rgba(128,128,128,.2);
+    background-color: #d9d9d9;
 /*    border: medium solid #999;*/
     float: right;
-    margin: 100px 0px 0 0;
+    margin: 100px 0px 70 0;
     width: 100%;
     height: 900px;
 	padding-left: 30px;
+
 
 }
 
 .numbers {
     fill: white;
-    font-family: Jensen;
+    font-family: DejaVu Sans;
     font-size: 4em;
 }
 
 .graphTitle {
-    font-family: jensen;
-    font-size: 6em;
+    font-family: DejaVu Sans;
+    font-size: 5em;
     font-weight: bold;
+    padding-left: 50px;
+
 }
 
 .graphFrame {
@@ -83,11 +97,9 @@
     width: 100%;
     height: 1000px;
     font-size:8em;
+    padding-top:1000px;
 }
-/*
-.graphBackground{
-	fill: none;
-}*/
+
 .axis path,
 .axis line {
     fill: none;
@@ -103,9 +115,12 @@
 }
 
 #title-div{
-	font-family: jensen;
+	font-family: DejaVu Sans;
 	font-size: 10em;
 	font-weight: bold;
+    background-color: #800000;
+    color: white;
+    padding-left: 100px;
 }
 
 .dropdown {
@@ -113,7 +128,7 @@
     top: 1220px;
     left: 40px;
     z-index: 20;
-    font-family: sans-serif;
+    font-family: DejaVu Sans;
     font-size: 2em;
     font-weight: bold;
     padding: 2px;
@@ -129,7 +144,6 @@ option {
 
 .rect{
     border: medium solid #999;
-/*    float: right;*/
     margin: 100px 0px 0 0;
     width: 100%;
     height: 1500px;
@@ -141,10 +155,11 @@ option {
     height: 200px;
     min-width: 100px;
     color: #fff;
-    background-color: #000;
+    background-color: #666666;
     border: solid thin #fff;
     padding: 5px 10px;
     font-size: 50px;
+    font-family: DejaVu Sans;
 }
 
 .infolabel h1 {
@@ -153,10 +168,12 @@ option {
     display: inline-block;
     line-height: 2em;
     font-size: 40px;
+    font-family: DejaVu Sans;
 }
 
-body{
-  background-color: #fff2e6;
+#name{
+	font-size: 26px;
+	color:  #4d4d4d;
 }
 
 
