@@ -98,13 +98,14 @@ body{
     height: 1000px;
     font-size:8em;
     padding-top:1000px;
+    display: none;
 }
 
 .axis path,
 .axis line {
     fill: none;
     stroke: #999;
-    stroke-width: 1px;
+    stroke-width: 5px;
     shape-rendering: crispEdges;
 }
 
@@ -175,5 +176,3 @@ option {
 	font-size: 26px;
 	color:  #4d4d4d;
 }
-
-

@@ -227,18 +227,22 @@ function setgraph(csvDataa, colorScale){
         .attr("x", 40)
         .attr("y", 70)
         .attr("class", "graphTitle")
-        
+
+   
 
     //create vertical axis generator
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left");
 
+
     //place axis
-    var axis = graph.append("g")
+    var axisY = graph.append("g")
         .attr("class", "axis")
         .attr("transform", translate)
         .call(yAxis);
+
+
 
     //create frame for graph border
     var graphFrame = graph.append("rect")
