@@ -3,22 +3,22 @@
 
 
 //creating a pseudo-global variables
-var attrArray = ["Employers, female (% of employment)", "Employers, male (% of employment)","Employers, total (% of employment)", "GDP growth (annual %)", "Labor force with primary education (% of total)"];
+var attrArray = ["Contributing family workers, total (% of total employed)","Employment in services (% of total employment)","Labor force with primary education (% of total)","Employment in industry (% of total employment)","Employment in agriculture (% of total employment)"];
 var expressed = attrArray[0];
 
     //chart frame dimensions
  var chartWidth = window.innerWidth * 0.97,
-        chartHeight = 700;
-        leftPadding = 25,
+        chartHeight = 900;
+        leftPadding = 80,
         rightPadding = 2,
-        topBottomPadding = 5,
+        topBottomPadding = 100,
         innerWidth = chartWidth - leftPadding - rightPadding,
         innerHeight = chartHeight - topBottomPadding * 2,
         translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
     var yScale = d3.scale.linear()
-        .range([0, chartHeight])
-        .domain([0, 40]);
+        .range([600, 0])
+        .domain([0, 100]);
 
 window.onload = setMap();
 //set up choropleth map
@@ -48,13 +48,13 @@ var width = window.innerWidth * 0.7,
 //use queue.js to parallelize asynchronous data loading
   var q = d3_queue.queue();
     q
-    .defer(d3.csv, "data/csvData.csv") 
+    .defer(d3.csv, "data/csvDataa.csv") 
     .defer(d3.json, "data/countries.topojson") 
     .await(callback);
 
 
 //creating the callback function to create the map
-  function callback(error, csvData, world){
+  function callback(error, csvDataa, world){
 
 
 //translate europe TopoJSON
@@ -62,14 +62,14 @@ var width = window.innerWidth * 0.7,
 //calling the set graticule function
     setGraticule(map, path);
 //calling the join data function
-    joinData(worldcountries, csvData);
+    joinData(worldcountries, csvDataa);
 
-    var colorScale = makeColorScale(csvData);
+    var colorScale = makeColorScale(csvDataa);
       //add countries to map
     setEnumerationUnits(worldcountries, map, path, colorScale);
 
-    setChart(csvData, colorScale);
-    createDropdown(csvData);
+    setChart(csvDataa, colorScale);
+    createDropdown(csvDataa);
 
   };
 
@@ -112,16 +112,16 @@ function setEnumerationUnits(worldcountries, map, path, colorScale){
           .attr("d",path)
           .style("fill", function(d){
             return choropleth(d.properties, colorScale);
-        })
-        .on("mouseover", function(d){
-            highlight(d.properties);
-        })
-        .on("mouseout", function(d){
-            dehighlight(d.properties);
-        })
-        .on("mousemove", moveLabel);
-        var desc = selectCountries.append("desc")
-          .text('{"stroke": "none", "stroke-width": "0px"}');
+          })
+          .on("mouseover", function(d){
+              highlight(d.properties);
+          })
+          .on("mouseout", function(d){
+              dehighlight(d.properties);
+          })
+          .on("mousemove", moveLabel);
+          var desc = selectCountries.append("desc")
+            .text('{"stroke": "none", "stroke-width": "0px"}');
 
 
 };
@@ -161,17 +161,17 @@ function setGraticule(map, path){
 
 
 //writing a function to join the data from the csv and geojson
-function joinData (worldcountries, csvData){
+function joinData (worldcountries, csvDataa){
 
-      for (var i= 0; i<csvData.length; i++){
-      var csvRegion = csvData[i];
+      for (var i= 0; i<csvDataa.length; i++){
+      var csvRegion = csvDataa[i];
       var csvKey = csvRegion.admin;
 
         for (var a=0; a<worldcountries.length; a++){
           var geojsonProps = worldcountries[a].properties;
           var geojsonKey = geojsonProps.adm0_a3_us;
 
-
+//creating the data join and setting a value for the no data
           if (geojsonKey==csvKey){
             attrArray.forEach(function(attr){
               if (csvRegion[attr]==" "){
@@ -190,36 +190,38 @@ function joinData (worldcountries, csvData){
 }
 
 //function to create coordinated bar chart
-function setChart(csvData, colorScale){
+function setChart(csvDataa, colorScale){
 
-    //create a second svg element to hold the bar chart
+//create an svg element to hold the bar chart
     var chart = d3.select("#chart-div")
         .append("svg")
         .attr("width", chartWidth)
         .attr("height", chartHeight)
         .attr("class", "chart");
 
-    //set bars for each province
+//creating the bars for each region
      var bars = chart.selectAll(".bar")
-        .data(csvData)
+        .data(csvDataa)
         .enter()
         .append("rect")
         .sort(function(a, b){
+          // if(a[expressed] == " "){
+          //   return a[expressed]= 100000}
+          // else{
             return a[expressed]-b[expressed]
+          // }
         })
         .attr("class", function(d){
             return "bar " + d.admin;
         })
 
-        .attr("width", innerWidth / csvData.length - 1)
+        .attr("width", innerWidth / csvDataa.length - 1)
 
         .on("mouseover", highlight)
         .on("mouseout", dehighlight)
         .on("mousemove", moveLabel);
-  // //this hightlights all the bars 
-  //       .on("mouseover", highlight)
-  //       .on("mouseout", dehighlight);
 
+//setting the variable for deselecting the bars
     var desc = bars.append("desc")
         .text('{"stroke": "none", "stroke-width": "0px"}');
 
@@ -248,13 +250,13 @@ function setChart(csvData, colorScale){
         .attr("transform", translate);
 };
 
-function createDropdown(csvData){
+function createDropdown(csvDataa){
   //add select element
   var dropdown = d3.select("body")
     .append("select")
     .attr("class", "dropdown")
     .on("change", function(){
-      changeAttribute(this.value, csvData)
+      changeAttribute(this.value, csvDataa)
     });
 
   //add initial option
@@ -271,12 +273,12 @@ function createDropdown(csvData){
     .attr("value", function(d){ return d })
     .text(function(d){ return d });
 };
-function changeAttribute(attribute, csvData){
+function changeAttribute(attribute, csvDataa){
   //change the expressed attribute
   expressed = attribute;
 
   //recreate the color scale
-  var colorScale = makeColorScale(csvData);
+  var colorScale = makeColorScale(csvDataa);
 
   //recolor enumeration units
   var regions = d3.selectAll(".selectCountries")
@@ -297,7 +299,7 @@ function changeAttribute(attribute, csvData){
         })
         .duration(500);
 
-    updateChart(bars, csvData.length, colorScale);
+    updateChart(bars, csvDataa.length, colorScale);
  
   function updateChart(bars, n, colorScale){
     //position bars
@@ -324,8 +326,8 @@ function highlight(props){
     //change stroke
     var selected = d3.selectAll("." + props.adm0_a3)
         .style({
-            "stroke": "blue",
-            "stroke-width": "2"
+            "stroke": "yellow",
+            "stroke-width": "3"
         });
 
     setLabel(props);
