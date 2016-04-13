@@ -7,7 +7,7 @@ var attrArray = ["Contributing family workers, total (% of total employed)","Emp
 var expressed = attrArray[0];
 
 //creating the graph frame
-var graphWidth = window.innerWidth * 0.97,
+var graphWidth = window.innerWidth * 1.2,
     graphHeight = 900;
     leftPadding = 80,
     rightPadding = 2,
@@ -28,7 +28,7 @@ window.onload = setMap();
 //set up choropleth map function
 function setMap(){
 //Setting the dimensions for the map frame
-  var width = window.innerWidth * 0.7,
+  var width = window.innerWidth * 0.6,
       height = 1700;
 //create new svg container for the map
   var map = d3.select("#map-div")
