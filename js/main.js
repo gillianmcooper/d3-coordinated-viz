@@ -2,105 +2,104 @@
 
 
 
-//creating a pseudo-global variables
-var attrArray = ["Contributing family workers, total (% of total employed)","Employment in services (% of total employment)","Labor force with primary education (% of total)","Employment in industry (% of total employment)","Employment in agriculture (% of total employment)"];
+//creating a pseudo-global variables that hold the attibute arrays from the csv
+var attrArray = ["Contributing family workers, total (% of total employed)","Employment in services (% of total employment)","Labor force with at most primary education (% of total)","Employment in industry (% of total employment)","Employment in agriculture (% of total employment)","Labor force with at most Secondary education (% of total)","Labor force with at most Tertiary education (% of total)"];
 var expressed = attrArray[0];
 
-    //chart frame dimensions
- var chartWidth = window.innerWidth * 0.97,
-        chartHeight = 900;
-        leftPadding = 80,
-        rightPadding = 2,
-        topBottomPadding = 100,
-        innerWidth = chartWidth - leftPadding - rightPadding,
-        innerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+//creating the graph frame
+var graphWidth = window.innerWidth * 0.97,
+    graphHeight = 900;
+    leftPadding = 80,
+    rightPadding = 2,
+    topBottomPadding = 100,
+    innerWidth = graphWidth - leftPadding - rightPadding,
+    innerHeight = graphHeight - topBottomPadding * 2,
+    translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
-    var yScale = d3.scale.linear()
-        .range([600, 0])
-        .domain([0, 100]);
+
+//creating the linear scale bar for the graph, domain goes from 0 -100 as the values are percentages
+var yScale = d3.scale.linear()
+    .range([600, 0])
+    .domain([0, 100]);
 
 window.onload = setMap();
-//set up choropleth map
+
+//set up choropleth map function
 function setMap(){
-
-//map frame dimensions
-var width = window.innerWidth * 0.7,
-    height = 1700;
-
+//Setting the dimensions for the map frame
+  var width = window.innerWidth * 0.7,
+      height = 1700;
 //create new svg container for the map
   var map = d3.select("#map-div")
     .append("svg")
     .attr("class", "map")
     .attr("width", width)
     .attr("height", height);
-//defining the map projection and scale
+//defining the map projection, natural earth and scale of the map
   var projection = d3.geo.naturalEarth()
-      .scale(400)
+      .scale(460)
       .translate([width / 2, height / 2])
       .precision(.1);
 
   var path = d3.geo.path()
       .projection(projection);
 
-
-
-//use queue.js to parallelize asynchronous data loading
+//use queue.js to load the data at the same time 
   var q = d3_queue.queue();
     q
     .defer(d3.csv, "data/csvDataa.csv") 
     .defer(d3.json, "data/countries.topojson") 
     .await(callback);
 
-
-//creating the callback function to create the map
+//creating the callback function to create the map within the set map function
   function callback(error, csvDataa, world){
-
 
 //translate europe TopoJSON
       var worldcountries = topojson.feature(world, world.objects.countries).features;
-//calling the set graticule function
-    setGraticule(map, path);
-//calling the join data function
-    joinData(worldcountries, csvDataa);
+      var colorScale = makeColorScale(csvDataa);
+      
+      //calling functions within the callback function
+      //calling the function to join the topojson and csvdata
+      joinData(worldcountries, csvDataa);
+      //calling the function to create the graticule
+      setGraticule(map, path);
+      //calling the function to set the enumeration units for the map
+      setEnumerationUnits(worldcountries, map, path, colorScale);
+      //calling the function too create the graph
+      setgraph(csvDataa, colorScale);
+      //calling the function to creat the drop down menu
+      createDropdown(csvDataa);
 
-    var colorScale = makeColorScale(csvDataa);
-      //add countries to map
-    setEnumerationUnits(worldcountries, map, path, colorScale);
+  };//end of the callback function
+}; //end of the set map function
 
-    setChart(csvDataa, colorScale);
-    createDropdown(csvDataa);
-
-  };
-
-};
 
 //making the color scheme generator
 function makeColorScale(data){
   var colorClasses = [
-        "#ffffcc",
-        "#a1dab4",
-        "#41b6c4",
-        "#2c7fb8",
-        "#253494"
+        "#fee5d9",
+        "#fcae91",
+        "#fb6a4a",
+        "#de2d26",
+        "#a50f15"
         ];
 
   var  colorScale = d3.scale.quantile()
-    .range(colorClasses);
-
+      .range(colorClasses);
+//creating the variable taht stores the attributes as an array
   var domainArray =[];
   for (var i=0; i<data.length; i++){
-    var val = parseFloat(data[i][expressed]);
-    domainArray.push(val);
+      var val = parseFloat(data[i][expressed]);
+      domainArray.push(val);
   };
-
+//using the d3 method to make the color scale then returning the color scale 
   colorScale.domain(domainArray);
-
   return colorScale;
-};
+}; //end of make color scale
+
 
 function setEnumerationUnits(worldcountries, map, path, colorScale){    
-  var selectCountries = map.selectAll(".selectCountries")
+    var selectCountries = map.selectAll(".selectCountries")
           .data(worldcountries)
           .enter()
           .append("path")
@@ -108,11 +107,11 @@ function setEnumerationUnits(worldcountries, map, path, colorScale){
             return "selectCountries " + d.properties.adm0_a3;
 
           })
-
           .attr("d",path)
           .style("fill", function(d){
             return choropleth(d.properties, colorScale);
           })
+          //determining the mouse over features for moving over the map and then the dehighlighting 
           .on("mouseover", function(d){
               highlight(d.properties);
           })
@@ -187,29 +186,26 @@ function joinData (worldcountries, csvDataa){
         };
     };
 
-}
+}; //end of join data
 
-//function to create coordinated bar chart
-function setChart(csvDataa, colorScale){
+//function to create coordinated bar graph
+function setgraph(csvDataa, colorScale){
 
-//create an svg element to hold the bar chart
-    var chart = d3.select("#chart-div")
+//create an svg element to hold the bar graph
+    var graph = d3.select("#graph-div")
         .append("svg")
-        .attr("width", chartWidth)
-        .attr("height", chartHeight)
-        .attr("class", "chart");
+        .attr("width", graphWidth)
+        .attr("height", graphHeight)
+        .attr("class", "graph");
 
 //creating the bars for each region
-     var bars = chart.selectAll(".bar")
+     var bars = graph.selectAll(".bar")
         .data(csvDataa)
         .enter()
         .append("rect")
+        //sorting the bars on the bar graph
         .sort(function(a, b){
-          // if(a[expressed] == " "){
-          //   return a[expressed]= 100000}
-          // else{
             return a[expressed]-b[expressed]
-          // }
         })
         .attr("class", function(d){
             return "bar " + d.admin;
@@ -225,11 +221,11 @@ function setChart(csvDataa, colorScale){
     var desc = bars.append("desc")
         .text('{"stroke": "none", "stroke-width": "0px"}');
 
-//create a text element for the chart title
-    var chartTitle = chart.append("text")
+//create a text element for the graph title
+    var graphTitle = graph.append("text")
         .attr("x", 40)
         .attr("y", 70)
-        .attr("class", "chartTitle")
+        .attr("class", "graphTitle")
         
 
     //create vertical axis generator
@@ -237,18 +233,20 @@ function setChart(csvDataa, colorScale){
         .scale(yScale)
         .orient("left");
     //place axis
-    var axis = chart.append("g")
+    var axis = graph.append("g")
         .attr("class", "axis")
         .attr("transform", translate)
         .call(yAxis);
 
-    //create frame for chart border
-    var chartFrame = chart.append("rect")
-        .attr("class", "chartFrame")
-        .attr("width", chartWidth)
-        .attr("height", chartHeight)
+    //create frame for graph border
+    var graphFrame = graph.append("rect")
+        .attr("class", "graphFrame")
+        .attr("width", graphWidth)
+        .attr("height", graphHeight)
         .attr("transform", translate);
-};
+};//end of set graph
+
+
 
 function createDropdown(csvDataa){
   //add select element
@@ -272,7 +270,10 @@ function createDropdown(csvDataa){
     .append("option")
     .attr("value", function(d){ return d })
     .text(function(d){ return d });
-};
+};//end of create dropdown
+
+
+
 function changeAttribute(attribute, csvDataa){
   //change the expressed attribute
   expressed = attribute;
@@ -298,30 +299,33 @@ function changeAttribute(attribute, csvDataa){
             return i * 20
         })
         .duration(500);
-
-    updateChart(bars, csvDataa.length, colorScale);
- 
-  function updateChart(bars, n, colorScale){
+//calling the function to reload and update the graph
+    reloadGraph(bars, csvDataa.length, colorScale);
+ //defining the function to reload and update the graph
+  function reloadGraph(bars, n, colorScale){
     //position bars
     bars.attr("x", function(d, i){
             return i * (innerWidth / n) + leftPadding;
         })
-        //size/resize bars
+        //determining the size of the bars by the scale factor
         .attr("height", function(d, i){
             return 700 - yScale(parseFloat(d[expressed]));
         })
         .attr("y", function(d, i){
             return yScale(parseFloat(d[expressed])) + topBottomPadding;
         })
-        //color/recolor bars
+        //restyling the bars based on attribute
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
-    var chartTitle = d3.select(".chartTitle")
+    var graphTitle = d3.select(".graphTitle")
        .text("" + expressed + " in each region");
 
   };
-};
+};//end of the change attribute function
+
+
+//creating the highlighting function
 function highlight(props){
     //change stroke
     var selected = d3.selectAll("." + props.adm0_a3)
@@ -332,7 +336,7 @@ function highlight(props){
 
     setLabel(props);
 };
-
+//creating the labels for mousing over the map and graph
 function setLabel(props){
     //label content
     var labelAttribute = "<h1>" + props[expressed] +
@@ -351,6 +355,7 @@ function setLabel(props){
         .attr("class", "labelname")
         .html(props.name);
 };
+//allowing the map to highlight stop when moused over dependant on stroke
 function dehighlight(props){
   var selected = d3.selectAll("." + props.adm0_a3)
     .style({
@@ -361,6 +366,7 @@ function dehighlight(props){
         return getStyle(this, "stroke-width")
       }
     });
+    //defining the styling for mousing off
     function getStyle(element, styleName){
     var styleText = d3.select(element)
       .select("desc")
@@ -374,10 +380,11 @@ function dehighlight(props){
   d3.select(".infolabel")
     .remove();
 };
+
+//setting the posistion of mouseover labels 
 function moveLabel(){
-    //use coordinates of mousemove event to set label coordinates
-    var x = d3.event.clientX + 10,
-        y = d3.event.clientY - 75;
+    var x = d3.event.clientX + 8,
+        y = d3.event.clientY - 60;
 
     d3.select(".infolabel")
         .style({
