@@ -385,8 +385,8 @@ function dehighlight(props){
 
 //setting the posistion of mouseover labels 
 function moveLabel(){
-    var x = d3.event.clientX + 8,
-        y = d3.event.clientY - 60;
+    var x = d3.event.clientX + 80,
+        y = d3.event.clientY - 160;
 
     d3.select(".infolabel")
         .style({
